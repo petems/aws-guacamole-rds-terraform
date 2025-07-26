@@ -1,0 +1,26 @@
+# AWS Configuration
+aws_region = "us-west-2"
+
+# Project Configuration
+project_name = "guacamole"
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+
+# EC2 Configuration
+instance_type = "t3.medium"
+
+# RDS Configuration
+db_instance_class = "db.t3.micro"
+db_allocated_storage = 20
+db_max_allocated_storage = 100
+db_name = "guacamole_db"
+db_username = "guacamole"
+db_password = "YourSecurePassword123!"
+
+# Security Configuration
+# Replace with your SSH public key content
+public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAA... your-key-here"
+
+# Replace with your IP address for security (e.g., "203.0.113.0/32")
+allowed_ssh_cidrs = ["0.0.0.0/0"]
