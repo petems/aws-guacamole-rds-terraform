@@ -56,7 +56,6 @@ variable "db_password" {
   description = "Password for the master DB user"
   type        = string
   sensitive   = true
-  default     = "GuacamolePassword123!"
 }
 
 variable "public_key" {
@@ -69,4 +68,10 @@ variable "allowed_ssh_cidrs" {
   description = "List of CIDR blocks allowed for SSH access"
   type        = list(string)
   default     = ["0.0.0.0/0"]  # Change this to your IP for security
+}
+
+variable "user_ip_address" {
+  description = "Your current IP address for restricted access"
+  type        = string
+  default     = "141.0.149.124/32"
 }

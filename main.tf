@@ -79,6 +79,41 @@ resource "aws_subnet" "private_subnet" {
   }
 }
 
+# Create private subnets for EC2 (no direct internet access)
+resource "aws_subnet" "private_ec2_subnet" {
+  count             = 2
+  vpc_id            = aws_vpc.guacamole_vpc.id
+  cidr_block        = cidrsubnet(var.vpc_cidr, 8, count.index + 20)
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+
+  tags = {
+    Name = "${var.project_name}-private-ec2-subnet-${count.index + 1}"
+  }
+}
+
+# Create Elastic IP for NAT Gateway
+resource "aws_eip" "nat_eip" {
+  domain = "vpc"
+
+  tags = {
+    Name = "${var.project_name}-nat-eip"
+  }
+
+  depends_on = [aws_internet_gateway.guacamole_igw]
+}
+
+# Create NAT Gateway
+resource "aws_nat_gateway" "guacamole_nat" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public_subnet[0].id
+
+  tags = {
+    Name = "${var.project_name}-nat-gateway"
+  }
+
+  depends_on = [aws_internet_gateway.guacamole_igw]
+}
+
 # Create route table for public subnets
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.guacamole_vpc.id
@@ -93,14 +128,37 @@ resource "aws_route_table" "public_rt" {
   }
 }
 
-# Associate public subnets with route table
+# Create route table for private subnets (EC2 instances)
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.guacamole_vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.guacamole_nat.id
+  }
+
+  tags = {
+    Name = "${var.project_name}-private-rt"
+  }
+}
+
+# Associate public subnets with public route table
 resource "aws_route_table_association" "public_rta" {
   count          = 2
   subnet_id      = aws_subnet.public_subnet[count.index].id
   route_table_id = aws_route_table.public_rt.id
 }
 
+# Associate private EC2 subnets with private route table
+resource "aws_route_table_association" "private_ec2_rta" {
+  count          = 2
+  subnet_id      = aws_subnet.private_ec2_subnet[count.index].id
+  route_table_id = aws_route_table.private_rt.id
+}
+
 # Security group for Guacamole EC2 instance
+# Note: EC2 is now in private subnet with NAT Gateway for internet access
+# Database communication is internal through VPC
 resource "aws_security_group" "guacamole_sg" {
   name_prefix = "${var.project_name}-guacamole-"
   vpc_id      = aws_vpc.guacamole_vpc.id
@@ -110,7 +168,7 @@ resource "aws_security_group" "guacamole_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.user_ip_address]
   }
 
   # HTTPS access
@@ -118,7 +176,7 @@ resource "aws_security_group" "guacamole_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.user_ip_address]
   }
 
   # Guacamole default port
@@ -126,7 +184,7 @@ resource "aws_security_group" "guacamole_sg" {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.user_ip_address]
   }
 
   # SSH access (restrict this to your IP in production)
