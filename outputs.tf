@@ -21,7 +21,7 @@ output "rds_endpoint" {
 
 output "vpc_id" {
   description = "ID of the VPC"
-  value       = aws_vpc.guacamole_vpc.id
+  value       = local.vpc_id
 }
 
 output "ssh_command" {
@@ -32,17 +32,16 @@ output "ssh_command" {
 output "network_architecture" {
   description = "Network architecture information"
   value = {
-    vpc_cidr = aws_vpc.guacamole_vpc.cidr_block
-    public_subnets = aws_subnet.public_subnet[*].cidr_block
-    private_ec2_subnets = aws_subnet.private_ec2_subnet[*].cidr_block
-    private_rds_subnets = aws_subnet.private_subnet[*].cidr_block
-    nat_gateway_id = aws_nat_gateway.guacamole_nat.id
-    ec2_subnet_id = aws_instance.guacamole_server.subnet_id
-    rds_subnet_group = aws_db_subnet_group.guacamole_db_subnet_group.name
+    vpc_id              = local.vpc_id
+    use_existing_vpc    = var.use_existing_vpc
+    public_subnet_ids   = local.public_subnet_ids
+    private_subnet_ids  = local.private_subnet_ids
+    ec2_subnet_id       = aws_instance.guacamole_server.subnet_id
+    rds_subnet_group    = aws_db_subnet_group.guacamole_db_subnet_group.name
   }
 }
 
 output "security_notes" {
   description = "Security and network architecture notes"
-  value = "EC2 instance is now in private subnet with NAT Gateway for internet access. Database communication is internal through VPC. SSH access is still available via Elastic IP."
+  value       = "EC2 instance is now in private subnet with NAT Gateway for internet access. Database communication is internal through VPC. SSH access is still available via Elastic IP."
 }

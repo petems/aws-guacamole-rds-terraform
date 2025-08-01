@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(AWS_PROFILE=ese-sandbox aws ec2 describe-route-tables --region us-west-2 --filters \"Name=vpc-id,Values=vpc-01b4f1de3f0d20efe\" --output json)",
+      "Bash(AWS_PROFILE=ese-sandbox aws sso login --region us-west-2)",
+      "Bash(AWS_PROFILE=ese-sandbox aws ec2 describe-instances --region us-west-2 --filters \"Name=tag:Name,Values=*guacamole*\" --query 'Reservations[*].Instances[*].[InstanceId,State.Name,Tags[?Key==`Name`].Value|[0]]' --output table)",
+      "Bash(AWS_PROFILE=ese-sandbox aws rds describe-db-instances --region us-west-2 --query 'DBInstances[*].[DBInstanceIdentifier,DBInstanceStatus]' --output table)",
+      "Bash(AWS_PROFILE=ese-sandbox terraform state list)",
+      "Bash(AWS_PROFILE=ese-sandbox terraform plan)",
+      "Bash(AWS_PROFILE=ese-sandbox aws ec2 describe-regions --region us-west-2 --query 'Regions[*].RegionName' --output text)",
+      "Bash(for region in us-east-1 us-east-2 us-west-1 eu-west-1)",
+      "Bash(do)",
+      "Bash(echo \"=== $region ===\")",
+      "Bash(AWS_PROFILE=ese-sandbox aws ec2 describe-vpcs --region $region --query 'Vpcs[*].[VpcId,CidrBlock,Tags[?Key==`Name`].Value|[0]]' --output table)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(AWS_PROFILE=ese-sandbox aws ec2 describe-subnets --region us-east-1 --filters \"Name=vpc-id,Values=vpc-0a05bd027b15b40ac\" --query 'Subnets[*].[SubnetId,AvailabilityZone,CidrBlock,MapPublicIpOnLaunch]' --output table)",
+      "Bash(AWS_PROFILE=ese-sandbox aws ec2 describe-internet-gateways --region us-east-1 --filters \"Name=attachment.vpc-id,Values=vpc-0a05bd027b15b40ac\" --query 'InternetGateways[*].InternetGatewayId' --output table)"
+    ],
+    "deny": []
+  }
+}
