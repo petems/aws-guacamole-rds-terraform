@@ -1,0 +1,59 @@
+# AWS Configuration
+aws_region = "us-west-2"
+
+# Project Configuration
+project_name = "guacamole"
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+
+# EC2 Configuration
+instance_type = "t3.medium"
+
+# RDS Configuration
+db_instance_class = "db.t3.micro"
+db_allocated_storage = 20
+db_max_allocated_storage = 100
+db_name = "guacamole_db"
+db_username = "guacamole"
+db_password = "YourSecurePassword123!"
+
+# Security Configuration
+# Replace with your SSH public key content
+public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAA... your-key-here"
+
+# Replace with your IP address for security (e.g., "203.0.113.0/32")
+allowed_ssh_cidrs = ["0.0.0.0/0"]
+
+# Guacamole Admin Configuration
+# Custom admin credentials (replaces default guacadmin/guacadmin)
+guacamole_admin_username = "admin"
+guacamole_admin_password = "YourSecureGuacamolePassword123!"
+
+# Deployment Mode Configuration
+# Choose deployment speed vs features trade-off:
+# "development" - Fast deployment (2-3 min) - No backups, no encryption
+# "staging"     - Balanced (4-6 min) - 1-day backup, encryption enabled  
+# "production"  - Robust (8-12 min) - 7-day backup, encryption, multi-AZ
+deployment_mode = "development"
+
+# User Management Configuration
+# Set to true to manage additional users with Terraform
+manage_users_with_terraform = false
+
+# Additional Guacamole Users (optional)
+# Uncomment and modify to add users via Terraform
+# guacamole_users = {
+#   "john.doe" = {
+#     password    = "SecurePassword123!"
+#     full_name   = "John Doe"
+#     email       = "john.doe@company.com"
+#     permissions = ["CREATE_CONNECTION", "CREATE_CONNECTION_GROUP"]
+#   }
+#   "jane.smith" = {
+#     password    = "AnotherSecure456!"
+#     full_name   = "Jane Smith"
+#     email       = "jane.smith@company.com"
+#     permissions = ["CREATE_CONNECTION"]
+#   }
+# }
